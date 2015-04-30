@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>iwana-protobuf</artifactId>
+  <packaging>jar</packaging>
+  <parent>
+    <groupId>com.evernote.iwana</groupId>
+    <artifactId>iwana-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <name>iwana-protobuf</name>
+
+  <properties>
+    <protodump.bin>proto-dump</protodump.bin>
+    <protoc.bin>/usr/local/Cellar/protobuf250/2.5.0/bin/protoc</protoc.bin>
+
+    <iwana.project.basedir>${project.basedir}/../</iwana.project.basedir>
+  </properties>
+
+  <profiles>
+    <profile>
+      <id>protodump</id>
+      <!-- Builds .proto files from scratch, i.e., dumping buffers from iWork 
+        binaries -->
+      <activation>
+        <file>
+          <missing>src/main/protobuf/TSWPCommandArchives.proto</missing>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>protodump-clean</id>
+                <phase>clean</phase>
+                <configuration>
+                  <tasks>
+                    <delete dir="${basedir}/src/main/protobuf"
+                      verbose="true" />
+                  </tasks>
+                </configuration>
+              </execution>
+
+              <execution>
+                <id>protodump-dump</id>
+                <phase>generate-sources</phase>
+                <configuration>
+                  <tasks>
+                    <mkdir dir="${basedir}/src/main/protobuf" />
+
+                    <apply executable="${protodump.bin}"
+                      dest="${basedir}/src/main/protobuf" parallel="false"
+                      force="true">
+                      <arg value="-o" />
+                      <targetfile />
+                      <srcfile />
+                      <fileset dir="/Applications">
+                        <include name="Pages.app/Contents/MacOS/Pages" />
+                        <include name="Keynote.app/Contents/MacOS/Keynote" />
+                        <include name="Numbers.app/Contents/MacOS/Numbers" />
+                      </fileset>
+                      <mapper type="merge" to="." />
+                    </apply>
+
+                    <move todir="${basedir}/src/main/protobuf">
+                      <fileset dir="${basedir}/src/main/protobuf/">
+                        <include name="**/*" />
+                      </fileset>
+                      <mapper type="flatten" />
+                    </move>
+
+                    <delete includeEmptyDirs="true">
+                      <fileset dir="${basedir}/src/main/protobuf">
+                        <exclude name="*.proto" />
+                      </fileset>
+                    </delete>
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.github.igor-petruk.protobuf</groupId>
+        <artifactId>protobuf-maven-plugin</artifactId>
+        <version>0.6.5</version>
+        <executions>
+          <execution>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <protocCommand>${protoc.bin}</protocCommand>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <artifactSet>
+                <excludes>
+                  <exclude>org*</exclude>
+                  <exclude>log*</exclude>
+                  <exclude>com.google.*</exclude>
+                  <exclude>com.evernote.search.*</exclude>
+                </excludes>
+              </artifactSet>
+              <createSourcesJar>true</createSourcesJar>
+              <shadeSourcesContent>true</shadeSourcesContent>
+              <relocations>
+                <relocation>
+                  <pattern>KN</pattern>
+                  <shadedPattern>com.evernote.iwana.pb.KN</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>TN</pattern>
+                  <shadedPattern>com.evernote.iwana.pb.TN</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>TP</pattern>
+                  <shadedPattern>com.evernote.iwana.pb.TP</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>TSA</pattern>
+                  <shadedPattern>com.evernote.iwana.pb.TSA</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>TSCE</pattern>
+                  <shadedPattern>com.evernote.iwana.pb.TSCE</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>TSCH</pattern>
+                  <shadedPattern>com.evernote.iwana.pb.TSCH</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>TSD</pattern>
+                  <shadedPattern>com.evernote.iwana.pb.TSD</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>TSK</pattern>
+                  <shadedPattern>com.evernote.iwana.pb.TSK</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>TSP</pattern>
+                  <shadedPattern>com.evernote.iwana.pb.TSP</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>TSWP</pattern>
+                  <shadedPattern>com.evernote.iwana.pb.TSWP</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>TSS</pattern>
+                  <shadedPattern>com.evernote.iwana.pb.TSS</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>TST</pattern>
+                  <shadedPattern>com.evernote.iwana.pb.TST</shadedPattern>
+                </relocation>
+              </relocations>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include>**/*.class</include>
+          </includes>
+        </configuration>
+      </plugin>
+    </plugins>
+
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>src/main/protobuf</directory>
+      </resource>
+    </resources>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+      <version>2.5.0</version>
+    </dependency>
+  </dependencies>
+</project>

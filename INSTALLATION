@@ -1,0 +1,13 @@
+"iwana-protobuf" will only build on OS X.
+
+When importing into eclipse, make sure you don't import "iwana-protobuf";
+otherwise, you will get compilation errors. Instead, do a "mvn clean
+install" and let Eclipse use the Maven-built jar.
+
+Prerequisites:
+
+protobuf 2.5.0
+Install via "brew install protobuf250"
+
+proto-dump 0.1
+Obtain from https://github.com/obriensp/proto-dump

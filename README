@@ -1,0 +1,8 @@
+iwana - Extract text from iWork'13 files
+
+See INSTALLATION for how to build and install from source
+
+You can run the extractor from the command line:
+./exec-artifact com.evernote.iwana:iwana-extract:1.0-SNAPSHOT com.evernote.iwana.extract.ExtractTextApp <file>
+
+whereas <file> can be any *.keynote, *.numbers or *.pages file in iWork'13 format.
